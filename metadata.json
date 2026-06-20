@@ -1,0 +1,6 @@
+{
+  "name": "Pickleball Scoreboard",
+  "description": "Real-time pickleball referee operations console, court visualization map, and embeddable spectator live scoring widgets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

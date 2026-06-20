@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Inter:ital,wght@0,400;0,750;0,900;1,900&family=JetBrains+Mono:wght@400;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-accent: #CCFF00;
+  --color-bg-dark: #0A0A0A;
+  --color-panel-dark: #0F0F0F;
+  --color-card-dark: #0D0D0D;
+  --color-board-dark: #121212;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #0A0A0A;
+  color: #F5F5F5;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Custom styled scrollbars matching high-contrast dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CCFF00;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e5ff80;
+}
+
+/* Pulse animation for serving tracking */
+@keyframes dink-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+    box-shadow: 0 0 15px #CCFF00;
+  }
+}
+
+.pulse-serve {
+  animation: dink-pulse 1.8s infinite ease-in-out;
+}
