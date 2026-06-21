@@ -63,6 +63,17 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
 
   return (
     <div className="bg-black border-2 border-white/15 text-white rounded-sm overflow-hidden p-3.5 flex flex-col select-none w-full max-w-[450px] mx-auto" id="embed-widget-container">
+      <style>{`
+        body { 
+          background-color: rgba(0, 0, 0, 0); 
+          margin: 0px auto; 
+          overflow: hidden; 
+        }
+        #embed-widget-container {
+          background-color: rgba(0, 0, 0, 0.4) !important; /* Semi-transparent background */
+          border-color: rgba(255, 255, 255, 0.15) !important; /* Subtle border */
+        }
+      `}</style>
       {/* Widget Header bar */}
       <div className="flex justify-between items-center text-[10px] text-white font-black uppercase tracking-widest border-b border-white/10 pb-1.5 mb-2">
         <span className="flex items-center gap-1.5 text-[#CCFF00]">

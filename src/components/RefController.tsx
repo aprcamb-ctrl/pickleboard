@@ -1209,12 +1209,12 @@ export default function RefController({ initialState, token, onExit }: RefContro
                     id="link-embed-textarea"
                     readOnly
                     rows={2}
-                    value={`<iframe src="${embedUrl}" width="100%" height="320" style="border:none;background:#000000;border-radius:0px;"></iframe>`}
+                    value={`<iframe src="${embedUrl}" width="300" height="180" style="border:none;background:transparent;border-radius:0px;"></iframe>`}
                     className="flex-1 bg-black border border-white/10 text-[9px] p-2 rounded-sm text-white/70 font-mono focus:outline-none focus:border-[#CCFF00] resize-none h-14"
                   />
                   <button
                     id="copy-embed-btn"
-                    onClick={() => copyToClipboard(`<iframe src="${embedUrl}" width="100%" height="320" style="border:none;background:#000000;border-radius:0px;"></iframe>`, 'embed')}
+                    onClick={() => copyToClipboard(`<iframe src="${embedUrl}" width="300" height="180" style="border:none;background:transparent;border-radius:0px;"></iframe>`, 'embed')}
                     className="p-3 border border-white/10 bg-black hover:bg-[#0F0F0F] text-white/70 hover:text-white rounded-sm transition-colors cursor-pointer font-mono"
                     title="Copy iframe HTML snippet"
                   >
