@@ -45,6 +45,7 @@ export default function CreateMatchForm({ onSuccess }: CreateMatchFormProps) {
   const [scoringFormat, setScoringFormat] = useState<'side-out' | 'rally'>('side-out');
   const [gameTimerFormat, setGameTimerFormat] = useState<number>(11);
   const [customTimer, setCustomTimer] = useState<string>('');
+  const [enableGameClock, setEnableGameClock] = useState(true);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -73,7 +74,8 @@ export default function CreateMatchForm({ onSuccess }: CreateMatchFormProps) {
       tiebreakPoints,
       initialService,
       scoringFormat,
-      gameTimerLimit: targetTimer,
+      gameTimerLimit: enableGameClock ? targetTimer : 0,
+      enableGameClock,
     };
 
     try {
@@ -359,35 +361,55 @@ export default function CreateMatchForm({ onSuccess }: CreateMatchFormProps) {
 
           {/* Timer Format */}
           <div className="space-y-1.5" id="game-timer-container">
-            <label className="block text-[9px] uppercase font-bold text-white/40">Game Timer</label>
-            <div className="grid grid-cols-3 gap-2" id="timer-presets">
-              {[11, 15, 0].map((mins) => (
-                <button
-                  key={`mins-${mins}`}
-                  type="button"
-                  onClick={() => setGameTimerFormat(mins)}
-                  className={`p-2.5 rounded-sm text-xs font-bold border transition-all cursor-pointer text-center ${
-                    gameTimerFormat === mins
-                      ? 'border-[#CCFF00] bg-[#CCFF00]/10 text-[#CCFF00]'
-                      : 'border-white/10 bg-[#0A0A0A] text-white/40 hover:border-white/20'
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-[9px] uppercase font-bold text-white/40">Game Timer</label>
+              <button
+                id="enable-timer-toggle"
+                type="button"
+                onClick={() => setEnableGameClock(!enableGameClock)}
+                className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  enableGameClock ? 'bg-[#CCFF00]' : 'bg-white/10'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-black shadow ring-0 transition duration-200 ease-in-out ${
+                    enableGameClock ? 'translate-x-[20px]' : 'translate-x-0'
                   }`}
-                >
-                  {mins === 0 ? 'Custom' : `${mins} mins`}
-                </button>
-              ))}
+                />
+              </button>
             </div>
-            {gameTimerFormat === 0 && (
-              <input
-                id="custom-timer-input"
-                type="number"
-                min="1"
-                max="180"
-                required
-                value={customTimer}
-                onChange={(e) => setCustomTimer(e.target.value)}
-                placeholder="Enter minutes"
-                className="w-full mt-2 bg-black border border-white/10 rounded-sm p-2 text-white text-sm focus:outline-none focus:border-[#CCFF00]"
-              />
+            {enableGameClock && (
+              <>
+                <div className="grid grid-cols-3 gap-2" id="timer-presets">
+                  {[11, 15, 0].map((mins) => (
+                    <button
+                      key={`mins-${mins}`}
+                      type="button"
+                      onClick={() => setGameTimerFormat(mins)}
+                      className={`p-2.5 rounded-sm text-xs font-bold border transition-all cursor-pointer text-center ${
+                        gameTimerFormat === mins
+                          ? 'border-[#CCFF00] bg-[#CCFF00]/10 text-[#CCFF00]'
+                          : 'border-white/10 bg-[#0A0A0A] text-white/40 hover:border-white/20'
+                      }`}
+                    >
+                      {mins === 0 ? 'Custom' : `${mins} mins`}
+                    </button>
+                  ))}
+                </div>
+                {gameTimerFormat === 0 && (
+                  <input
+                    id="custom-timer-input"
+                    type="number"
+                    min="1"
+                    max="180"
+                    required
+                    value={customTimer}
+                    onChange={(e) => setCustomTimer(e.target.value)}
+                    placeholder="Enter minutes"
+                    className="w-full mt-2 bg-black border border-white/10 rounded-sm p-2 text-white text-sm focus:outline-none focus:border-[#CCFF00]"
+                  />
+                )}
+              </>
             )}
           </div>
 

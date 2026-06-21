@@ -130,8 +130,12 @@ export default function SpectatorScoreboard({ matchId }: SpectatorScoreboardProp
               <span>Best of {match.settings.bestOfGames}</span>
               <span>•</span>
               <span>Scoring: <strong className="text-amber-400 font-bold">{match.settings.scoringFormat === 'rally' ? 'Rally' : 'Side-Out'}</strong></span>
-              <span>•</span>
-              <span>Game Time: <strong className="text-[#CCFF00] font-bold">{match.settings.gameTimerLimit ? `${match.settings.gameTimerLimit} Mins` : 'No Limit'}</strong></span>
+              {match.settings.enableGameClock !== false && (
+                <>
+                  <span>•</span>
+                  <span>Game Time: <strong className="text-[#CCFF00] font-bold">{match.settings.gameTimerLimit ? `${match.settings.gameTimerLimit} Mins` : 'No Limit'}</strong></span>
+                </>
+              )}
             </span>
           </div>
         </div>
@@ -142,33 +146,35 @@ export default function SpectatorScoreboard({ matchId }: SpectatorScoreboardProp
       </div>
 
       {/* GAME CLOCK / COUNTDOWN (FOR SPECTATOR DISPLAY) */}
-      <div className="bg-[#0F0F0F] border border-white/10 rounded-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md" id="spectator-clock-widget">
-        <div className="flex items-center gap-2.5">
-          <Timer className={`w-5 h-5 ${isTimerActive ? 'text-[#CCFF00] animate-pulse' : 'text-white/40'}`} />
-          <div>
-            <span className="text-[10px] text-white/50 uppercase tracking-widest font-black block">Game Clock Status</span>
-            <span className="text-[11px] text-[#CCFF00] font-mono font-bold uppercase tracking-widest">
-              {isTimerActive ? 'Countdown Active' : 'Countdown Paused'}
-            </span>
+      {match.settings.enableGameClock !== false && (
+        <div className="bg-[#0F0F0F] border border-white/10 rounded-sm p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md" id="spectator-clock-widget">
+          <div className="flex items-center gap-2.5">
+            <Timer className={`w-5 h-5 ${isTimerActive ? 'text-[#CCFF00] animate-pulse' : 'text-white/40'}`} />
+            <div>
+              <span className="text-[10px] text-white/50 uppercase tracking-widest font-black block">Game Clock Status</span>
+              <span className="text-[11px] text-[#CCFF00] font-mono font-bold uppercase tracking-widest">
+                {isTimerActive ? 'Countdown Active' : 'Countdown Paused'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 bg-black/50 border border-white/5 rounded-sm px-6 py-2.5 min-w-[180px] justify-center relative overflow-hidden">
+            {gameTimerSeconds === 0 ? (
+              <div className="text-center animate-pulse py-0.5" id="spectator-times-up">
+                <span className="text-red-500 font-mono text-xl font-extrabold tracking-wider block">
+                  TIME'S UP!
+                </span>
+              </div>
+            ) : (
+              <div className="text-center">
+                <span className="text-[#CCFF00] font-mono text-3xl font-black tracking-widest" id="spectator-clock-digits">
+                  {formatTimerValue(gameTimerSeconds)}
+                </span>
+              </div>
+            )}
           </div>
         </div>
-
-        <div className="flex items-center gap-4 bg-black/50 border border-white/5 rounded-sm px-6 py-2.5 min-w-[180px] justify-center relative overflow-hidden">
-          {gameTimerSeconds === 0 ? (
-            <div className="text-center animate-pulse py-0.5" id="spectator-times-up">
-              <span className="text-red-500 font-mono text-xl font-extrabold tracking-wider block">
-                TIME'S UP!
-              </span>
-            </div>
-          ) : (
-            <div className="text-center">
-              <span className="text-[#CCFF00] font-mono text-3xl font-black tracking-widest" id="spectator-clock-digits">
-                {formatTimerValue(gameTimerSeconds)}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
+      )}
 
       {/* CORE DISPLAY (TV BRONZE BANNER) */}
       <div className="bg-black border-2 border-white/10 rounded-sm overflow-hidden relative" id="tv-score-canvas">

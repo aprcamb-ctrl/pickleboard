@@ -629,7 +629,9 @@ export default function RefController({ initialState, token, onExit }: RefContro
             <span>Mode: <strong>{match.settings.isDoubles ? 'Doubles' : 'Singles'}</strong></span>
             <span>Format: <strong>Best of {match.settings.bestOfGames} (to {activePointsTarget})</strong></span>
             <span>Scoring: <strong className="text-amber-400 font-bold">{match.settings.scoringFormat === 'rally' ? 'Rally' : 'Side-Out'}</strong></span>
-            <span>Game Time: <strong className="text-[#CCFF00] font-bold">{match.settings.gameTimerLimit ? `${match.settings.gameTimerLimit} Mins` : 'No Limit'}</strong></span>
+            {match.settings.enableGameClock !== false && (
+              <span>Game Time: <strong className="text-[#CCFF00] font-bold">{match.settings.gameTimerLimit ? `${match.settings.gameTimerLimit} Mins` : 'No Limit'}</strong></span>
+            )}
           </div>
         </div>
 
@@ -1068,72 +1070,74 @@ export default function RefController({ initialState, token, onExit }: RefContro
         <div className="space-y-6">
           
           {/* GAME CLOCK / STOPWATCH PANEL */}
-          <div className="bg-black border-2 border-white/10 rounded-sm p-5 shadow-sm space-y-3 animate-fade-in" id="game-countdown-clock">
-            <div className="flex justify-between items-center border-b border-white/10 pb-2">
-              <span className="text-[10px] font-black uppercase text-white tracking-widest flex items-center gap-1.5">
-                <Timer className="w-4 h-4 text-[#CCFF00]" />
-                Game Clock
-              </span>
-              <span className="text-[9px] font-mono text-white/40 uppercase font-black">
-                Limit: {match.settings.gameTimerLimit || 11} mins
-              </span>
-            </div>
+          {match.settings.enableGameClock !== false && (
+            <div className="bg-black border-2 border-white/10 rounded-sm p-5 shadow-sm space-y-3 animate-fade-in" id="game-countdown-clock">
+              <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                <span className="text-[10px] font-black uppercase text-white tracking-widest flex items-center gap-1.5">
+                  <Timer className="w-4 h-4 text-[#CCFF00]" />
+                  Game Clock
+                </span>
+                <span className="text-[9px] font-mono text-white/40 uppercase font-black">
+                  Limit: {match.settings.gameTimerLimit || 11} mins
+                </span>
+              </div>
 
-            <div className="flex flex-col items-center justify-center py-4 bg-[#0A0A0A] rounded-sm border border-white/5 relative overflow-hidden">
-              {/* Giant Flashing Times Up or Digital Clock */}
-              {gameTimerSeconds === 0 ? (
-                <div className="text-center py-1 space-y-1 animate-pulse" id="times-up-alert">
-                  <span className="text-red-500 font-mono text-4xl font-extrabold tracking-wider block">
-                    TIME'S UP!
-                  </span>
-                  <span className="text-[10px] text-amber-400 font-mono tracking-widest uppercase font-black block">
-                    Match Time Block Expired
-                  </span>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <span className="text-[#CCFF00] font-mono text-5xl font-black tracking-widest block" id="countdown-digits">
-                    {formatTimerValue(gameTimerSeconds)}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Stopwatch controls toolbar */}
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <button
-                id="toggle-game-clock-btn"
-                onClick={toggleGameTimer}
-                disabled={gameTimerSeconds === 0}
-                className={`py-2 px-4 rounded-sm border font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 select-none cursor-pointer transition-all ${
-                  isTimerActive
-                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
-                    : 'bg-[#CCFF00]/10 border-[#CCFF00]/30 text-[#CCFF00] hover:bg-[#CCFF00]/20'
-                }`}
-              >
-                {isTimerActive ? (
-                  <>
-                    <Pause className="w-3.5 h-3.5" />
-                    Pause
-                  </>
+              <div className="flex flex-col items-center justify-center py-4 bg-[#0A0A0A] rounded-sm border border-white/5 relative overflow-hidden">
+                {/* Giant Flashing Times Up or Digital Clock */}
+                {gameTimerSeconds === 0 ? (
+                  <div className="text-center py-1 space-y-1 animate-pulse" id="times-up-alert">
+                    <span className="text-red-500 font-mono text-4xl font-extrabold tracking-wider block">
+                      TIME'S UP!
+                    </span>
+                    <span className="text-[10px] text-amber-400 font-mono tracking-widest uppercase font-black block">
+                      Match Time Block Expired
+                    </span>
+                  </div>
                 ) : (
-                  <>
-                    <Play className="w-3.5 h-3.5" />
-                    Start Clock
-                  </>
+                  <div className="text-center">
+                    <span className="text-[#CCFF00] font-mono text-5xl font-black tracking-widest block" id="countdown-digits">
+                      {formatTimerValue(gameTimerSeconds)}
+                    </span>
+                  </div>
                 )}
-              </button>
+              </div>
 
-              <button
-                id="reset-game-clock-btn"
-                onClick={resetGameTimer}
-                className="py-2 px-4 rounded-sm border border-white/10 bg-black hover:border-white/20 text-white/60 hover:text-white font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 select-none cursor-pointer transition-colors"
-              >
-                <RotateCw className="w-3.5 h-3.5" />
-                Reset Clock
-              </button>
+              {/* Stopwatch controls toolbar */}
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  id="toggle-game-clock-btn"
+                  onClick={toggleGameTimer}
+                  disabled={gameTimerSeconds === 0}
+                  className={`py-2 px-4 rounded-sm border font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 select-none cursor-pointer transition-all ${
+                    isTimerActive
+                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
+                      : 'bg-[#CCFF00]/10 border-[#CCFF00]/30 text-[#CCFF00] hover:bg-[#CCFF00]/20'
+                  }`}
+                >
+                  {isTimerActive ? (
+                    <>
+                      <Pause className="w-3.5 h-3.5" />
+                      Pause
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-3.5 h-3.5" />
+                      Start Clock
+                    </>
+                  )}
+                </button>
+
+                <button
+                  id="reset-game-clock-btn"
+                  onClick={resetGameTimer}
+                  className="py-2 px-4 rounded-sm border border-white/10 bg-black hover:border-white/20 text-white/60 hover:text-white font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 select-none cursor-pointer transition-colors"
+                >
+                  <RotateCw className="w-3.5 h-3.5" />
+                  Reset Clock
+                </button>
+              </div>
             </div>
-          </div>
+          )}
           
           {/* COURT MATRIX */}
           <div className="bg-black border-2 border-white/10 rounded-sm p-5 shadow-sm">

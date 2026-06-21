@@ -203,6 +203,7 @@ app.post('/api/matches', (req, res) => {
     initialService: settingsData.initialService || 'A',
     scoringFormat: settingsData.scoringFormat || 'side-out',
     gameTimerLimit: settingsData.gameTimerLimit || 0,
+    enableGameClock: settingsData.enableGameClock ?? true,
   };
 
   // Build the initial games grid

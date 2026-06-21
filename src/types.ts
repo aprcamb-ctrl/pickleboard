@@ -22,6 +22,7 @@ export interface MatchSettings {
   initialService: 'A' | 'B';
   scoringFormat?: 'side-out' | 'rally';
   gameTimerLimit?: number; // game timer limit in minutes, 0 means none/disabled
+  enableGameClock?: boolean;
 }
 
 export interface GameScore {
