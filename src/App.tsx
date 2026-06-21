@@ -60,7 +60,7 @@ export default function App() {
 
   // Regular refresh for active dashboard
   useEffect(() => {
-    if (path !== '/') return;
+    if (path !== '/' && path !== '/spectator-lobby') return;
 
     const fetchMatches = async () => {
       try {
@@ -103,7 +103,7 @@ export default function App() {
           {/* Spectator Navbar */}
           <nav className="bg-[#0F0F0F] py-4 px-6 border-b border-white/10" id="viewer-nav">
             <div className="max-w-4xl mx-auto flex justify-between items-center">
-              <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+              <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/spectator-lobby')}>
                 <div className="w-8 h-8 bg-[#CCFF00] rounded-sm flex items-center justify-center shrink-0">
                   <div className="w-4 h-4 border-2 border-black rounded-full"></div>
                 </div>
@@ -113,7 +113,7 @@ export default function App() {
               </div>
               <button
                 id="viewer-backlobby-btn"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/spectator-lobby')}
                 className="text-[10px] font-black uppercase tracking-wider text-white border border-white/20 hover:border-[#CCFF00] bg-white/5 px-4 py-2 hover:bg-[#CCFF00] hover:text-black transition-all cursor-pointer"
               >
                 Back to Lobby
@@ -167,7 +167,9 @@ export default function App() {
       );
     }
 
-    // 4. MAIN LANDING LOBBY (HOME PAGE)
+    // 4. MAIN LANDING LOBBY (HOME PAGE) OR SPECTATOR LOBBY
+    const isSpectatorLobby = segments[0] === 'spectator-lobby';
+
     return (
       <div className="min-h-screen bg-[#0A0A0A] pb-20">
         {/* HERO BANNER SECTION */}
@@ -177,66 +179,71 @@ export default function App() {
           <div className="max-w-6xl mx-auto flex flex-col items-center text-center space-y-4">
             <div className="inline-flex items-center gap-2 bg-[#CCFF00]/10 border border-[#CCFF00]/30 px-4 py-1.5 rounded-sm text-[#CCFF00] text-xs font-black uppercase tracking-widest font-mono">
               <Zap className="w-3.5 h-3.5 text-[#CCFF00] animate-pulse" />
-              <span>Real-time spectator scoreboards for pickleball</span>
+              <span>{isSpectatorLobby ? "Real-time live tournament scoring" : "Real-time spectator scoreboards for pickleball"}</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white italic uppercase tracking-tighter leading-none" id="main-title">
-              Let Spectators Follow <br className="hidden md:inline" />
-              Every Dink <span className="text-[#CCFF00]">Live</span>
+              {isSpectatorLobby ? "Live Tournament Arena Feed" : <>Let Spectators Follow <br className="hidden md:inline" /> Every Dink <span className="text-[#CCFF00]">Live</span></>}
             </h1>
 
             <p className="max-w-2xl text-white/50 text-sm md:text-base font-medium leading-relaxed">
-              Create clean digital scoring arenas in seconds. Set up courts, track services/sideouts, customize names, and embed fluid, responsive live widgets directly into club websites.
+              {isSpectatorLobby 
+                ? "Select any of the active scoring arenas below to watch the live match feed and scorecard updates in real-time."
+                : "Create clean digital scoring arenas in seconds. Set up courts, track services/sideouts, customize names, and embed fluid, responsive live widgets directly into club websites."}
             </p>
           </div>
         </div>
 
         {/* LOBBY CONTENT SLOTS */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 px-6 mt-12">
+        <div className={isSpectatorLobby ? "max-w-4xl mx-auto px-6 mt-12" : "max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 px-6 mt-12"}>
           
           {/* LEFT: Game Launcher Configurator (Width 2 col) */}
-          <div className="lg:col-span-2 space-y-6" id="launcher-aside">
-            <div className="bg-[#0D0D0D] border border-white/10 p-6 rounded-sm space-y-4">
-              <div>
-                <h2 className="text-[11px] font-black text-[#CCFF00] uppercase tracking-widest flex items-center gap-2">
-                  <Play className="w-4 h-4 text-[#CCFF00] fill-[#CCFF00]" />
-                  <span>Configure Arena</span>
-                </h2>
-                <p className="text-[11px] text-white/40 mt-1">
-                  Enter participant names and select scoring rules parameters to generate digital scoreboard interfaces.
+          {!isSpectatorLobby && (
+            <div className="lg:col-span-2 space-y-6" id="launcher-aside">
+              <div className="bg-[#0D0D0D] border border-white/10 p-6 rounded-sm space-y-4">
+                <div>
+                  <h2 className="text-[11px] font-black text-[#CCFF00] uppercase tracking-widest flex items-center gap-2">
+                    <Play className="w-4 h-4 text-[#CCFF00] fill-[#CCFF00]" />
+                    <span>Configure Arena</span>
+                  </h2>
+                  <p className="text-[11px] text-white/40 mt-1">
+                    Enter participant names and select scoring rules parameters to generate digital scoreboard interfaces.
+                  </p>
+                </div>
+
+                <CreateMatchForm onSuccess={handleLaunchRefereeSuccess} />
+              </div>
+
+              {/* QUICK EMBED DOCS FAQ */}
+              <div className="p-5 border border-white/10 bg-[#0D0D0D]/50 rounded-sm text-xs space-y-3" id="embed-readme-box">
+                <h4 className="text-[10px] font-black text-[#CCFF00] uppercase tracking-widest flex items-center gap-1.5 label-brand">
+                  <Globe className="w-4 h-4 text-[#CCFF00]" />
+                  Live Scoring Integration (How to Use)
+                </h4>
+                <p className="text-white/40 leading-relaxed text-[11px]">
+                  Need to broadcast live dink scores on a stream or tournament page? Since this application is fullstack and synchronized, simply launch a match, copy the spectator/widget link, and share or paste the iframe code into your target layout!
                 </p>
-              </div>
-
-              <CreateMatchForm onSuccess={handleLaunchRefereeSuccess} />
-            </div>
-
-            {/* QUICK EMBED DOCS FAQ */}
-            <div className="p-5 border border-white/10 bg-[#0D0D0D]/50 rounded-sm text-xs space-y-3" id="embed-readme-box">
-              <h4 className="text-[10px] font-black text-[#CCFF00] uppercase tracking-widest flex items-center gap-1.5 label-brand">
-                <Globe className="w-4 h-4 text-[#CCFF00]" />
-                Live Scoring Integration (How to Use)
-              </h4>
-              <p className="text-white/40 leading-relaxed text-[11px]">
-                Need to broadcast live dink scores on a stream or tournament page? Since this application is fullstack and synchronized, simply launch a match, copy the spectator/widget link, and share or paste the iframe code into your target layout!
-              </p>
-              <div className="bg-black p-3 rounded-sm border border-white/10 font-mono text-[10px] text-white/60">
-                &lt;iframe src=&quot;[Viewer URL]&quot; ... /&gt;
+                <div className="bg-black p-3 rounded-sm border border-white/10 font-mono text-[10px] text-white/60">
+                  &lt;iframe src=&quot;[Viewer URL]&quot; ... /&gt;
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* RIGHT: Active Live Arenas Directories (Width 3 col) */}
-          <div className="lg:col-span-3 space-y-6" id="live-directory-panel">
+          {/* RIGHT: Active Live Arenas Directories (Width 3 col or full-width) */}
+          <div className={isSpectatorLobby ? "space-y-6 flex-1" : "lg:col-span-3 space-y-6"} id="live-directory-panel">
             <div className="bg-[#0D0D0D] border border-white/10 p-6 rounded-sm space-y-5 min-h-[500px] flex flex-col">
               
               <div className="flex justify-between items-center border-b border-white/10 pb-4">
                 <div>
                   <h2 className="text-[11px] font-black text-[#CCFF00] uppercase tracking-widest flex items-center gap-2">
                     <Radio className="w-4 h-4 text-[#CCFF00] animate-pulse" />
-                    <span>Real-time Matches Arena</span>
+                    <span>{isSpectatorLobby ? "Real-time Matches Feed" : "Real-time Matches Arena"}</span>
                   </h2>
                   <p className="text-[11px] text-white/40 mt-1">
-                    Click "Referee Mode" to control scoring, or "Spectator View" to open full TV board interfaces.
+                    {isSpectatorLobby 
+                      ? "Select \"Spectate Panel\" to view live score updates and TV display board for the match."
+                      : "Click \"Referee Mode\" to control scoring, or \"Spectator View\" to open full TV board interfaces."}
                   </p>
                 </div>
                 
@@ -317,22 +324,24 @@ export default function App() {
 
                         {/* Direct Viewer Link clicks */}
                         <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            onClick={() => {
-                              const storedToken = localStorage.getItem(`referee-token-${match.id}`);
-                              if (storedToken) {
-                                navigate(`/referee/${match.id}/${storedToken}`);
-                              } else {
-                                setTokenPromptMatchId(match.id);
-                                setInputToken('');
-                              }
-                            }}
-                            className="px-3 py-1.5 rounded-sm bg-[#CCFF00] hover:bg-[#b8e600] text-black hover:text-black font-mono font-black uppercase tracking-wider transition flex items-center gap-1 cursor-pointer"
-                            id={`lobby-referee-btn-${match.id}`}
-                          >
-                            <span>Referee Mode</span>
-                            <Zap className="w-3 h-3 fill-current" />
-                          </button>
+                          {!isSpectatorLobby && (
+                            <button
+                              onClick={() => {
+                                const storedToken = localStorage.getItem(`referee-token-${match.id}`);
+                                if (storedToken) {
+                                  navigate(`/referee/${match.id}/${storedToken}`);
+                                } else {
+                                  setTokenPromptMatchId(match.id);
+                                  setInputToken('');
+                                }
+                              }}
+                              className="px-3 py-1.5 rounded-sm bg-[#CCFF00] hover:bg-[#b8e600] text-black hover:text-black font-mono font-black uppercase tracking-wider transition flex items-center gap-1 cursor-pointer"
+                              id={`lobby-referee-btn-${match.id}`}
+                            >
+                              <span>Referee Mode</span>
+                              <Zap className="w-3 h-3 fill-current" />
+                            </button>
+                          )}
 
                           <button
                             onClick={() => navigate(`/viewer/${match.id}`)}
@@ -344,13 +353,15 @@ export default function App() {
                           </button>
 
                           {/* Delete Arena option (using local server rules) */}
-                          <button
-                            onClick={() => handleDeleteMatch(match.id, match.settings.id)}
-                            className="p-1.5 text-white/30 hover:text-red-500 hover:bg-white/5 border border-transparent hover:border-white/10 rounded-sm transition-colors cursor-pointer"
-                            title="Remove scoring session"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {!isSpectatorLobby && (
+                            <button
+                              onClick={() => handleDeleteMatch(match.id, match.settings.id)}
+                              className="p-1.5 text-white/30 hover:text-red-500 hover:bg-white/5 border border-transparent hover:border-white/10 rounded-sm transition-colors cursor-pointer"
+                              title="Remove scoring session"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     );
