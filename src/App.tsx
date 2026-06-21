@@ -89,7 +89,7 @@ export default function App() {
     // MATCH: /embed/:matchId
     if (segments[0] === 'embed' && segments[1]) {
       return (
-        <div className="h-screen bg-[#0A0A0A] p-2 overflow-hidden flex flex-col justify-stretch">
+        <div className="h-screen bg-transparent p-1.5 overflow-hidden flex flex-col items-start justify-start">
           <EmbedScoreboard matchId={segments[1]} />
         </div>
       );

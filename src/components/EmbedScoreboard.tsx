@@ -15,6 +15,15 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
   const [match, setMatch] = useState<MatchState | null>(null);
   const [error, setError] = useState(false);
 
+  // Set body background to transparent for clean stream integration
+  useEffect(() => {
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = 'transparent';
+    return () => {
+      document.body.style.backgroundColor = originalBg;
+    };
+  }, []);
+
   useEffect(() => {
     const fetchState = async () => {
       try {
@@ -53,14 +62,14 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
   const isCompleted = match.status === 'completed';
 
   return (
-    <div className="bg-black border-2 border-white/10 text-white rounded-sm overflow-hidden p-4 flex flex-col justify-between h-full select-none" id="embed-widget-container">
+    <div className="bg-black border-2 border-white/15 text-white rounded-sm overflow-hidden p-3.5 flex flex-col select-none w-full max-w-[450px] mx-auto" id="embed-widget-container">
       {/* Widget Header bar */}
-      <div className="flex justify-between items-center text-[10px] text-white/40 font-black uppercase tracking-widest border-b border-white/10 pb-2 mb-2">
+      <div className="flex justify-between items-center text-[10px] text-white font-black uppercase tracking-widest border-b border-white/10 pb-1.5 mb-2">
         <span className="flex items-center gap-1.5 text-[#CCFF00]">
           <span className="w-2 h-2 rounded-full bg-[#CCFF00] animate-ping inline-block" />
           Live Scoring
         </span>
-        <span className="font-mono">
+        <span className="font-mono text-white">
           {isCompleted 
             ? 'Completed' 
             : `Game ${match.currentGameIndex + 1} of ${match.settings.bestOfGames}`}
@@ -68,7 +77,7 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
       </div>
 
       {/* Row scoreboard container */}
-      <div className="space-y-3 flex-1 flex flex-col justify-center">
+      <div className="space-y-2.5 my-1">
         
         {/* TEAM A LINE */}
         <div className="flex items-center justify-between" id="embed-row-teama">
@@ -80,7 +89,7 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
             {match.servingTeam === 'A' && !isCompleted && (
               <Zap className="w-3.5 h-3.5 text-[#CCFF00] shrink-0 fill-[#CCFF00] animate-pulse" />
             )}
-            <span className={`text-sm font-black uppercase tracking-tight truncate ${match.servingTeam === 'A' && !isCompleted ? 'text-white' : 'text-white/60'}`}>
+            <span className="text-sm font-black uppercase tracking-tight truncate text-white">
               {match.settings.teamAName}
             </span>
             {match.servingTeam === 'A' && !isCompleted && match.settings.isDoubles && (
@@ -100,7 +109,7 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
                   <span 
                     key={`em-ga-${idx}`} 
                     className={`font-mono text-[11px] font-black px-1 rounded-sm ${
-                      isThisCurrent ? 'hidden' : 'text-white/30 bg-[#0F0F0F]'
+                      isThisCurrent ? 'hidden' : 'text-white bg-[#1A1A1A]'
                     }`}
                   >
                     {idx === match.currentGameIndex ? match.scoreA : g.teamAScore}
@@ -112,13 +121,13 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
             {/* Match games tally */}
             {match.settings.bestOfGames > 1 && (
               <div className="text-right border-l border-white/10 pl-3">
-                <span className="text-[9px] text-white/30 uppercase tracking-widest font-mono block">Games</span>
-                <span className="font-mono text-xs font-black text-white/80">{match.teamAGamesWon}</span>
+                <span className="text-[9px] text-white uppercase tracking-widest font-mono block">Games</span>
+                <span className="font-mono text-xs font-black text-white">{match.teamAGamesWon}</span>
               </div>
             )}
 
             {/* Current point live display */}
-            <div className={`w-10 text-center py-1 px-2 rounded-sm border ${match.servingTeam === 'A' && !isCompleted ? 'bg-black border-[#CCFF00]' : 'bg-[#0F0F0F] border-white/10'}`}>
+            <div className={`w-10 text-center py-1 px-2 rounded-sm border ${match.servingTeam === 'A' && !isCompleted ? 'bg-black border-[#CCFF00]' : 'bg-[#0F0F0F] border-white/15'}`}>
               <span className={`font-mono text-base font-black ${match.servingTeam === 'A' && !isCompleted ? 'text-[#CCFF00]' : 'text-white'}`}>
                 {match.scoreA}
               </span>
@@ -136,7 +145,7 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
             {match.servingTeam === 'B' && !isCompleted && (
               <Zap className="w-3.5 h-3.5 text-[#CCFF00] shrink-0 fill-[#CCFF00] animate-pulse" />
             )}
-            <span className={`text-sm font-black uppercase tracking-tight truncate ${match.servingTeam === 'B' && !isCompleted ? 'text-white' : 'text-white/60'}`}>
+            <span className="text-sm font-black uppercase tracking-tight truncate text-white">
               {match.settings.teamBName}
             </span>
             {match.servingTeam === 'B' && !isCompleted && match.settings.isDoubles && (
@@ -156,7 +165,7 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
                   <span 
                     key={`em-gb-${idx}`} 
                     className={`font-mono text-[11px] font-black px-1 rounded-sm ${
-                      isThisCurrent ? 'hidden' : 'text-white/30 bg-[#0F0F0F]'
+                      isThisCurrent ? 'hidden' : 'text-white bg-[#1A1A1A]'
                     }`}
                   >
                     {idx === match.currentGameIndex ? match.scoreB : g.teamBScore}
@@ -168,13 +177,13 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
             {/* Match games tally */}
             {match.settings.bestOfGames > 1 && (
               <div className="text-right border-l border-white/10 pl-3">
-                <span className="text-[9px] text-white/30 uppercase tracking-widest font-mono block">Games</span>
-                <span className="font-mono text-xs font-black text-white/80">{match.teamBGamesWon}</span>
+                <span className="text-[9px] text-white uppercase tracking-widest font-mono block">Games</span>
+                <span className="font-mono text-xs font-black text-white">{match.teamBGamesWon}</span>
               </div>
             )}
 
             {/* Current point live display */}
-            <div className={`w-10 text-center py-1 px-2 rounded-sm border ${match.servingTeam === 'B' && !isCompleted ? 'bg-black border-[#CCFF00]' : 'bg-[#0F0F0F] border-white/10'}`}>
+            <div className={`w-10 text-center py-1 px-2 rounded-sm border ${match.servingTeam === 'B' && !isCompleted ? 'bg-black border-[#CCFF00]' : 'bg-[#0F0F0F] border-white/15'}`}>
               <span className={`font-mono text-base font-black ${match.servingTeam === 'B' && !isCompleted ? 'text-[#CCFF00]' : 'text-white'}`}>
                 {match.scoreB}
               </span>
