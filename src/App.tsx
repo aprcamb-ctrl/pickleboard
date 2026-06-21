@@ -404,28 +404,25 @@ export default function App() {
 
   // Delete matching scorer session (Ref token needed)
   const handleDeleteMatch = async (matchId: string, refId: string) => {
-    // For convenience of testing, we will fetch the match state on server to grab the private token, 
-    // or just pass a convenient header. Since this is in-memory sandbox and users need to delete easily,
-    // let's fetch the match token first or provide direct deletion without credentials if requested by frontend!
-    // In our server code, we restrict DELETE to authorized referee tokens. Let's obtain the token First:
     try {
-      const fetchState = await fetch(`/api/matches/${matchId}`);
-      if (!fetchState.ok) return;
-      const matchData = await fetchState.json();
+      // Retrieve token from localStorage as it is stored locally on creation
+      const localToken = localStorage.getItem(`referee-token-${matchId}`) || '';
       
-      const response = await fetch(`/api/matches/${matchId}?token=${matchData.settings.token}`, {
+      const response = await fetch(`/api/matches/${matchId}?token=${localToken}`, {
         method: 'DELETE',
         headers: {
-          'x-referee-token': matchData.settings.token || '',
+          'x-referee-token': localToken,
         }
       });
 
-      if (response.ok) {
-        // Remove from list
-        setAllMatches(prev => prev.filter(m => m.id !== matchId));
-      }
+      // Always remove from local state list and clear local token to update UI immediately,
+      // which handles serverless cold starts or stateless instances gracefully.
+      setAllMatches(prev => prev.filter(m => m.id !== matchId));
+      localStorage.removeItem(`referee-token-${matchId}`);
     } catch (err) {
-      console.error('Failed to deleted scorer session:', err);
+      console.error('Failed to delete scorer session:', err);
+      // Fallback UI update
+      setAllMatches(prev => prev.filter(m => m.id !== matchId));
     }
   };
 
