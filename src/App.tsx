@@ -60,11 +60,16 @@ export default function App() {
 
   // Regular refresh for active dashboard
   useEffect(() => {
-    if (path !== '/' && path !== '/spectator-lobby') return;
+    const segments = path.split('/').filter(Boolean);
+    const isVenueLobby = segments[0] === 'venue' && segments[1];
+    const venueId = isVenueLobby ? segments[1] : '';
+
+    if (path !== '/' && path !== '/spectator-lobby' && !isVenueLobby) return;
 
     const fetchMatches = async () => {
       try {
-        const res = await fetch('/api/matches');
+        const url = isVenueLobby ? `/api/matches?venue=${venueId}` : '/api/matches';
+        const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           setAllMatches(data.matches || []);
@@ -167,8 +172,19 @@ export default function App() {
       );
     }
 
-    // 4. MAIN LANDING LOBBY (HOME PAGE) OR SPECTATOR LOBBY
-    const isSpectatorLobby = segments[0] === 'spectator-lobby';
+    // 4. MAIN LANDING LOBBY (HOME PAGE), SPECTATOR LOBBY, OR VENUE LOBBY
+    const isVenueLobby = segments[0] === 'venue' && segments[1];
+    const venueId = isVenueLobby ? segments[1] : '';
+    const isSpectatorLobby = segments[0] === 'spectator-lobby' || isVenueLobby;
+
+    // Helper to format venue display name (e.g. "torquay-tennis-club" -> "Torquay Tennis Club")
+    const formatVenueDisplayName = (slug: string) => {
+      return slug
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    };
+    const venueDisplayName = isVenueLobby ? formatVenueDisplayName(venueId) : '';
 
     return (
       <div className="min-h-screen bg-[#0A0A0A] pb-20">
@@ -179,17 +195,31 @@ export default function App() {
           <div className="max-w-6xl mx-auto flex flex-col items-center text-center space-y-4">
             <div className="inline-flex items-center gap-2 bg-[#CCFF00]/10 border border-[#CCFF00]/30 px-4 py-1.5 rounded-sm text-[#CCFF00] text-xs font-black uppercase tracking-widest font-mono">
               <Zap className="w-3.5 h-3.5 text-[#CCFF00] animate-pulse" />
-              <span>{isSpectatorLobby ? "Real-time live tournament scoring" : "Real-time spectator scoreboards for pickleball"}</span>
+              <span>
+                {isVenueLobby 
+                  ? "Active Venue Dashboard" 
+                  : isSpectatorLobby 
+                    ? "Real-time live tournament scoring" 
+                    : "Real-time spectator scoreboards for pickleball"}
+              </span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white italic uppercase tracking-tighter leading-none" id="main-title">
-              {isSpectatorLobby ? "Live Tournament Arena Feed" : <>Let Spectators Follow <br className="hidden md:inline" /> Every Dink <span className="text-[#CCFF00]">Live</span></>}
+              {isVenueLobby ? (
+                <>Live Feed: <span className="text-[#CCFF00]">{venueDisplayName}</span></>
+              ) : isSpectatorLobby ? (
+                "Live Tournament Arena Feed"
+              ) : (
+                <>Let Spectators Follow <br className="hidden md:inline" /> Every Dink <span className="text-[#CCFF00]">Live</span></>
+              )}
             </h1>
 
             <p className="max-w-2xl text-white/50 text-sm md:text-base font-medium leading-relaxed">
-              {isSpectatorLobby 
-                ? "Select any of the active scoring arenas below to watch the live match feed and scorecard updates in real-time."
-                : "Create clean digital scoring arenas in seconds. Set up courts, track services/sideouts, customize names, and embed fluid, responsive live widgets directly into club websites."}
+              {isVenueLobby
+                ? `Follow all live scoring courts and completed matches at ${venueDisplayName} in real-time.`
+                : isSpectatorLobby 
+                  ? "Select any of the active scoring arenas below to watch the live match feed and scorecard updates in real-time."
+                  : "Create clean digital scoring arenas in seconds. Set up courts, track services/sideouts, customize names, and embed fluid, responsive live widgets directly into club websites."}
             </p>
           </div>
         </div>
@@ -238,12 +268,20 @@ export default function App() {
                 <div>
                   <h2 className="text-[11px] font-black text-[#CCFF00] uppercase tracking-widest flex items-center gap-2">
                     <Radio className="w-4 h-4 text-[#CCFF00] animate-pulse" />
-                    <span>{isSpectatorLobby ? "Real-time Matches Feed" : "Real-time Matches Arena"}</span>
+                    <span>
+                      {isVenueLobby 
+                        ? `${venueDisplayName} Live Feed` 
+                        : isSpectatorLobby 
+                          ? "Real-time Matches Feed" 
+                          : "Real-time Matches Arena"}
+                    </span>
                   </h2>
                   <p className="text-[11px] text-white/40 mt-1">
-                    {isSpectatorLobby 
-                      ? "Select \"Spectate Panel\" to view live score updates and TV display board for the match."
-                      : "Click \"Referee Mode\" to control scoring, or \"Spectator View\" to open full TV board interfaces."}
+                    {isVenueLobby
+                      ? "Select \"Spectate Panel\" to view live score updates and TV display board for any court."
+                      : isSpectatorLobby 
+                        ? "Select \"Spectate Panel\" to view live score updates and TV display board for the match."
+                        : "Click \"Referee Mode\" to control scoring, or \"Spectator View\" to open full TV board interfaces."}
                   </p>
                 </div>
                 
@@ -404,6 +442,8 @@ export default function App() {
 
   // Delete matching scorer session (Ref token needed)
   const handleDeleteMatch = async (matchId: string, refId: string) => {
+    if (!window.confirm('Are you sure you want to remove this scoring session?')) return;
+
     try {
       // Retrieve token from localStorage as it is stored locally on creation
       const localToken = localStorage.getItem(`referee-token-${matchId}`) || '';
@@ -415,14 +455,25 @@ export default function App() {
         }
       });
 
-      // Always remove from local state list and clear local token to update UI immediately,
-      // which handles serverless cold starts or stateless instances gracefully.
+      if (!response.ok) {
+        let errorMessage = 'Unauthorized: Only the referee who created this match can delete it.';
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Only remove from local state list and clear local token if server successfully deleted it
       setAllMatches(prev => prev.filter(m => m.id !== matchId));
       localStorage.removeItem(`referee-token-${matchId}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to delete scorer session:', err);
-      // Fallback UI update
-      setAllMatches(prev => prev.filter(m => m.id !== matchId));
+      alert(err.message || 'Failed to delete scoring session. Please make sure you have the referee token.');
     }
   };
 

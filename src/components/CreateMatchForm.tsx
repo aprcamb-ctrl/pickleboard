@@ -46,6 +46,7 @@ export default function CreateMatchForm({ onSuccess }: CreateMatchFormProps) {
   const [gameTimerFormat, setGameTimerFormat] = useState<number>(11);
   const [customTimer, setCustomTimer] = useState<string>('');
   const [enableGameClock, setEnableGameClock] = useState(true);
+  const [venue, setVenue] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -76,6 +77,7 @@ export default function CreateMatchForm({ onSuccess }: CreateMatchFormProps) {
       scoringFormat,
       gameTimerLimit: enableGameClock ? targetTimer : 0,
       enableGameClock,
+      venue: venue.trim() || 'default-venue',
     };
 
     try {
@@ -142,6 +144,24 @@ export default function CreateMatchForm({ onSuccess }: CreateMatchFormProps) {
             <span className="text-[10px] opacity-70">1v1 Individual Play</span>
           </button>
         </div>
+      </div>
+
+      {/* Venue Name Field */}
+      <div>
+        <label className="block text-[9px] uppercase font-bold text-white/40 mb-1">
+          Venue / Club Name (Optional)
+        </label>
+        <input
+          id="venue-name-input"
+          type="text"
+          value={venue}
+          onChange={(e) => setVenue(e.target.value)}
+          className="w-full bg-black border border-white/10 rounded-sm p-2.5 text-white focus:outline-none focus:border-[#CCFF00] text-sm"
+          placeholder="e.g. Torquay Tennis Club"
+        />
+        <span className="text-[9px] text-white/30 lowercase tracking-tight block mt-1.5 font-mono">
+          Spectator URL: <span className="text-[#CCFF00]">/venue/{venue.trim() ? venue.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : 'default-venue'}</span>
+        </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

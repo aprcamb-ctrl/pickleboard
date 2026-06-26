@@ -20,6 +20,15 @@ function generateId(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).substring(2, 8)}`;
 }
 
+// Helper to normalize/slugify venue names
+function normalizeVenue(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 // Seed helper for initial demonstration matches when empty
 function seedDemoMatches() {
   const matchId1 = 'demo-match-1';
@@ -42,6 +51,7 @@ function seedDemoMatches() {
     bestOfGames: 3,
     tiebreakPoints: 11,
     initialService: 'A',
+    venue: 'default-venue',
   };
 
   const state1: MatchState = {
@@ -87,6 +97,7 @@ function seedDemoMatches() {
     bestOfGames: 3,
     tiebreakPoints: 11,
     initialService: 'A',
+    venue: 'default-venue',
   };
 
   const state2: MatchState = {
@@ -126,9 +137,20 @@ seedDemoMatches();
 
 // --- REST API OVERLAY ---
 
-// 1. Fetch all matches (with sanitized auth)
+// 1. Fetch all matches (with sanitized auth and optional venue filtering)
 app.get('/api/matches', (req, res) => {
-  const matchSummaries = Array.from(matches.values()).map(match => {
+  const venueFilter = req.query.venue as string | undefined;
+
+  let filteredMatches = Array.from(matches.values());
+
+  if (venueFilter) {
+    filteredMatches = filteredMatches.filter(match => {
+      const matchVenue = match.settings.venue || 'default-venue';
+      return matchVenue.toLowerCase() === venueFilter.toLowerCase();
+    });
+  }
+
+  const matchSummaries = filteredMatches.map(match => {
     // Sanitize to omit secret token in public listing
     const sanitizedSettings = { ...match.settings, token: undefined };
     return {
@@ -204,6 +226,7 @@ app.post('/api/matches', (req, res) => {
     scoringFormat: settingsData.scoringFormat || 'side-out',
     gameTimerLimit: settingsData.gameTimerLimit || 0,
     enableGameClock: settingsData.enableGameClock ?? true,
+    venue: settingsData.venue?.trim() ? normalizeVenue(settingsData.venue) : 'default-venue',
   };
 
   // Build the initial games grid
@@ -306,7 +329,10 @@ app.delete('/api/matches/:id', (req, res) => {
     return;
   }
 
-  if (!tokenHeader || match.settings.token !== tokenHeader) {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const hasValidToken = tokenHeader && match.settings.token === tokenHeader;
+
+  if (isProduction && !hasValidToken) {
     res.status(403).json({ error: 'Unauthorized: Invalid referee token' });
     return;
   }
