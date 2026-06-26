@@ -1201,22 +1201,22 @@ export default function RefController({ initialState, token, onExit }: RefContro
               {/* EMBED CODE GENERATOR */}
               <div className="p-3 bg-[#0F0F0F] border border-white/10 rounded-sm space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-white">Website Iframe Widget</span>
-                  <span className="text-[8px] text-white/50 font-mono font-black bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-sm select-none uppercase tracking-widest">Embed</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-white">Streamlabs / OBS Overlay URL</span>
+                  <span className="text-[8px] text-white/50 font-mono font-black bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-sm select-none uppercase tracking-widest">Overlay</span>
                 </div>
-                <div className="flex gap-1.5 items-end">
-                  <textarea
-                    id="link-embed-textarea"
+                <div className="flex gap-1.5 items-center">
+                  <input
+                    id="link-embed-input"
+                    type="text"
                     readOnly
-                    rows={2}
-                    value={`<iframe src="${embedUrl}" width="300" height="180" style="border:none;background:transparent;border-radius:0px;"></iframe>`}
-                    className="flex-1 bg-black border border-white/10 text-[9px] p-2 rounded-sm text-white/70 font-mono focus:outline-none focus:border-[#CCFF00] resize-none h-14"
+                    value={embedUrl}
+                    className="flex-1 bg-black border border-white/10 text-[10px] p-2 rounded-sm text-white/70 font-mono focus:outline-none focus:border-[#CCFF00]"
                   />
                   <button
                     id="copy-embed-btn"
-                    onClick={() => copyToClipboard(`<iframe src="${embedUrl}" width="300" height="180" style="border:none;background:transparent;border-radius:0px;"></iframe>`, 'embed')}
-                    className="p-3 border border-white/10 bg-black hover:bg-[#0F0F0F] text-white/70 hover:text-white rounded-sm transition-colors cursor-pointer font-mono"
-                    title="Copy iframe HTML snippet"
+                    onClick={() => copyToClipboard(embedUrl, 'embed')}
+                    className="p-2 border border-white/10 bg-black hover:bg-[#0F0F0F] text-white/70 hover:text-white rounded-sm transition-colors cursor-pointer"
+                    title="Copy Streamlabs overlay URL"
                   >
                     {copiedLink === 'embed' ? <Check className="w-3.5 h-3.5 text-[#CCFF00]" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
