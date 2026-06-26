@@ -62,16 +62,17 @@ export default function EmbedScoreboard({ matchId }: EmbedScoreboardProps) {
   const isCompleted = match.status === 'completed';
 
   return (
-    <div className="bg-black border-2 border-white/15 text-white rounded-sm overflow-hidden p-3.5 flex flex-col select-none w-full max-w-[450px] mx-auto" id="embed-widget-container">
+    <div className="bg-transparent border-0 text-white rounded-none overflow-hidden p-3.5 flex flex-col select-none w-full max-w-[450px] mx-auto" id="embed-widget-container">
       <style>{`
         body { 
-          background-color: rgba(0, 0, 0, 0); 
+          background-color: transparent !important; 
           margin: 0px auto; 
           overflow: hidden; 
         }
         #embed-widget-container {
-          background-color: rgba(0, 0, 0, 0.4) !important; /* Semi-transparent background */
-          border-color: rgba(255, 255, 255, 0.15) !important; /* Subtle border */
+          background: transparent !important;
+          border: none !important;
+          border-radius: 0px !important;
         }
       `}</style>
       {/* Widget Header bar */}
